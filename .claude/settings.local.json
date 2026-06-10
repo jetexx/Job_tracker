@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ruflo__hooks_route",
+      "mcp__ruflo__mcp_status",
+      "mcp__ruflo__system_status",
+      "Bash(npx create-next-app@latest *)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "ruflo"
+  ]
+}
