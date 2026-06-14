@@ -36,6 +36,10 @@ export async function GET() {
         },
       });
 
+    console.log(`\n👤 USER: ${session.user.email}`);
+    console.log(`🔑 USER ID: ${user.id}`);
+    console.log(`📊 Applications found for this user: ${applications.length}`);
+
     const auth = new google.auth.OAuth2();
 
     auth.setCredentials({
@@ -54,6 +58,9 @@ export async function GET() {
       });
 
     const emails = [];
+
+    console.log("📧 Starting Gmail sync...");
+    console.log(`📋 Saved applications: ${applications.map(a => a.company).join(", ")}`);
 
     for (const msg of messages.data.messages || []) {
       const fullMessage =
@@ -90,10 +97,18 @@ export async function GET() {
           )
         );
 
+      console.log(`\n📬 Email: "${subject}"`);
+      console.log(`   From: ${from}`);
+      console.log(`   Classification: ${status || "NONE"}`);
+      console.log(`   Searchable text: ${searchableText}`);
+      console.log(`   Companies in DB: ${applications.map(a => a.company).join(", ")}`);
+      console.log(`   Match found: ${matchedApplication?.company || "NO MATCH"}`);
+
       if (
         matchedApplication &&
         status
       ) {
+        console.log(`   ✅ UPDATING: ${matchedApplication.company} → ${status}`);
         await prisma.jobApplication.update({
           where: {
             id: matchedApplication.id,
@@ -102,6 +117,9 @@ export async function GET() {
             status,
           },
         });
+      } else {
+        if (!matchedApplication) console.log(`   ❌ No company match found`);
+        if (!status) console.log(`   ❌ Email not classified (no keywords)`);
       }
 
       emails.push({
