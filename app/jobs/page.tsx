@@ -1,4 +1,5 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import JobCard from '../../components/JobCard';
 import JobForm from '../../components/JobForm';
@@ -20,36 +21,43 @@ export default function JobsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editJob, setEditJob] = useState<Job | null>(null);
 
-  useEffect(() => {
-    let mounted = true;
-    const controller = new AbortController();
+  const fetchJobs = async () => {
+    setLoading(true);
 
-    const loadJobs = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch('/api/jobs', { signal: controller.signal });
-        if (!mounted) return;
-        const data = await res.json();
-        setJobs(data);
-      } catch (error) {
-        // Ignore abort errors
-      } finally {
-        if (mounted) setLoading(false);
+    try {
+      const res = await fetch('/api/jobs');
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch jobs');
       }
-    };
 
-    loadJobs();
+      const data = await res.json();
+      setJobs(data);
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return () => {
-      mounted = false;
-      controller.abort();
-    };
+  useEffect(() => {
+    fetchJobs();
   }, []);
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    setLoading((l) => l); // trigger re-render via state
+    try {
+      const res = await fetch(`/api/jobs/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to delete job');
+      }
+
+      await fetchJobs();
+    } catch (error) {
+      console.error('Error deleting job:', error);
+    }
   };
 
   const handleEdit = (job: Job) => {
@@ -58,46 +66,85 @@ export default function JobsPage() {
   };
 
   const handleSubmit = async (job: Omit<Job, 'id'>, id?: string) => {
-    if (id) {
-      await fetch(`/api/jobs/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(job),
-      });
-    } else {
-      await fetch('/api/jobs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(job),
-      });
+    try {
+      if (id) {
+        const res = await fetch(`/api/jobs/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(job),
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to update job');
+        }
+      } else {
+        const res = await fetch('/api/jobs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(job),
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to create job');
+        }
+      }
+
+      setShowForm(false);
+      setEditJob(null);
+
+      await fetchJobs();
+    } catch (error) {
+      console.error('Error saving job:', error);
     }
-    setShowForm(false);
-    setEditJob(null);
-    fetchJobs();
   };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">My Job Applications</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+        My Job Applications
+      </h1>
+
       <button
         className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg mb-4"
-        onClick={() => setShowForm(true)}
+        onClick={() => {
+          setEditJob(null);
+          setShowForm(true);
+        }}
       >
-        <Plus className="h-5 w-5" /> Add Job
+        <Plus className="h-5 w-5" />
+        Add Job
       </button>
+
       {loading ? (
         <p>Loading...</p>
       ) : (
         <div className="grid gap-4">
-          {jobs.map((job) => (
-            <JobCard key={job.id} job={job} onEdit={handleEdit} onDelete={handleDelete} />
-          ))}
+          {jobs.length > 0 ? (
+            jobs.map((job) => (
+              <JobCard
+                key={job.id}
+                job={job}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))
+          ) : (
+            <p className="text-gray-500">No job applications found.</p>
+          )}
         </div>
       )}
+
       {showForm && (
         <JobForm
           initialData={editJob}
-          onClose={() => { setShowForm(false); setEditJob(null); }}
+          onClose={() => {
+            setShowForm(false);
+            setEditJob(null);
+          }}
           onSubmit={handleSubmit}
         />
       )}

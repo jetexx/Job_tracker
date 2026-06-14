@@ -53,6 +53,8 @@ export default function EditApplicationModal({
   ) {
     e.preventDefault();
 
+    if (!job) return;
+
     try {
       setLoading(true);
 

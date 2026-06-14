@@ -1,27 +1,50 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-// GET /api/jobs/:id – fetch a single job for the current user
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+// GET /api/jobs/:id
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+
   const job = await prisma.jobApplication.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
-  if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  if (!job) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   return NextResponse.json(job);
 }
 
-// PUT /api/jobs/:id – update a job (expects JSON body)
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+// PUT /api/jobs/:id
+export async function PUT(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
   const data = await request.json();
+
   const updated = await prisma.jobApplication.update({
-    where: { id: params.id },
+    where: { id },
     data,
   });
+
   return NextResponse.json(updated);
 }
 
-// DELETE /api/jobs/:id – delete a job
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
-  await prisma.jobApplication.delete({ where: { id: params.id } });
+// DELETE /api/jobs/:id
+export async function DELETE(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+
+  await prisma.jobApplication.delete({
+    where: { id },
+  });
+
   return NextResponse.json({ success: true });
 }
