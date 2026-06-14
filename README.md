@@ -4,28 +4,39 @@ An intelligent full-stack AI-powered job application tracker that helps you orga
 
 Built with Next.js, TypeScript, Prisma, PostgreSQL, NextAuth, and AI automation, this project acts as your personal career assistant.
 
+
 ✨ Features
 📌 Smart Job Tracking
 Add and manage job applications in one dashboard
 Track status: Applied, Interview, Rejected, Offer 🎯
 Store company details, job links, notes, and deadlines
+
+
 🤖 AI-Powered Assistance
 Analyze job descriptions automatically
 Generate optimized resumes & cover letters
 ATS keyword improvement suggestions
 Smart job-fit insights
+
+
 ⏰ Smart Reminders
 Interview date alerts
 Follow-up reminders
 Application status tracking notifications
+
+
 🔐 Secure Authentication
 Google OAuth login via NextAuth
 Secure session handling
 Protected routes
+
+
 📊 Dashboard Analytics
 Application status overview
 Progress tracking
 Job search insights
+
+
 🧠 Tech Stack
 Frontend: Next.js (App Router), TypeScript
 Backend: Next.js API Routes
@@ -34,6 +45,9 @@ ORM: Prisma
 Auth: NextAuth (Google OAuth)
 AI Integration: OpenAI / Agentic AI system
 Deployment: Vercel ⚡
+
+
+
 🏗️ Architecture
 Frontend (Next.js)
         ↓
@@ -44,10 +58,14 @@ Prisma ORM
 PostgreSQL Database
         ↓
 AI Services (Resume + Job Analysis)
+
+
+
+
 ⚙️ Installation & Setup
 1️⃣ Clone the repository
-git clone https://github.com/your-username/ai-job-tracker.git
-cd ai-job-tracker
+git clone https://github.com/jetexx/job_tracker.git
+cd job_tracker
 2️⃣ Install dependencies
 npm install
 3️⃣ Setup environment variables
@@ -55,14 +73,23 @@ npm install
 Create a .env file:
 
 DATABASE_URL=your_postgres_url
+
 GOOGLE_CLIENT_ID=your_google_client_id
+
 GOOGLE_CLIENT_SECRET=your_google_client_secret
+
 NEXTAUTH_URL=http://localhost:3000
+
 NEXTAUTH_SECRET=your_secret
+
 OPENAI_API_KEY=your_ai_key
+
+
 4️⃣ Setup Prisma database
 npx prisma generate
 npx prisma db push
+
+
 5️⃣ Run the project
 npm run dev
 
@@ -80,7 +107,7 @@ Deploy 🚀
 
 Live URL:
 
-https://your-project.vercel.app
+https://job_tracker.vercel.app
 💡 Key Highlights
 Full-stack production-ready SaaS project
 AI integration for real-world job search optimization
