@@ -45,13 +45,17 @@ export default function DashboardPage() {
           fetch('/api/jobs'),
         ]);
 
-        const dashboardData = await dashboardRes.json();
-        const jobsData = await jobsRes.json();
+        const dashboardData = dashboardRes.ok
+          ? await dashboardRes.json()
+          : { total: 0, interviews: 0, offers: 0, rejected: 0 };
+        const jobsData = jobsRes.ok ? await jobsRes.json() : [];
 
         setStats(dashboardData);
-        setJobs(jobsData);
+        setJobs(Array.isArray(jobsData) ? jobsData : []);
       } catch (error) {
         console.error('Dashboard Error:', error);
+        setStats({ total: 0, interviews: 0, offers: 0, rejected: 0 });
+        setJobs([]);
       } finally {
         setLoading(false);
       }
