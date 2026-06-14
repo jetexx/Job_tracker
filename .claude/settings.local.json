@@ -4,7 +4,9 @@
       "mcp__ruflo__hooks_route",
       "mcp__ruflo__mcp_status",
       "mcp__ruflo__system_status",
-      "Bash(npx create-next-app@latest *)"
+      "Bash(npx create-next-app@latest *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)"
     ]
   },
   "enableAllProjectMcpServers": true,
