@@ -107,7 +107,7 @@ Deploy 🚀
 
 Live URL:
 
-https://job_tracker.vercel.app
+https://job-tracker-chi-dun.vercel.app/
 💡 Key Highlights
 Full-stack production-ready SaaS project
 AI integration for real-world job search optimization
