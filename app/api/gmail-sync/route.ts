@@ -2,6 +2,7 @@ import { google } from "googleapis";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { classifyEmail } from "@/lib/emailclassifier";
+import { extractCompany } from "@/lib/companyextractor";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -90,11 +91,15 @@ export async function GET() {
       const searchableText =
         `${subject} ${from}`.toLowerCase();
 
-      const matchedApplication =
+      const emailCompany = extractCompany(subject, from);
+      const normalizedSearchText = searchableText;
+
+      let matchedApplication =
         applications.find((app) =>
-          searchableText.includes(
+          normalizedSearchText.includes(
             app.company.toLowerCase()
-          )
+          ) ||
+          (emailCompany && app.company.toLowerCase() === emailCompany.toLowerCase())
         );
 
       console.log(`\n📬 Email: "${subject}"`);
@@ -117,6 +122,27 @@ export async function GET() {
             status,
           },
         });
+      } else if (!matchedApplication && status === "Offer") {
+        const createdCompany =
+          emailCompany ||
+          "Unknown Company";
+
+        console.log(
+          `   ✅ CREATING NEW APPLICATION: ${createdCompany} → ${status}`
+        );
+
+        const createdApplication = await prisma.jobApplication.create({
+          data: {
+            userId: user.id,
+            company: createdCompany,
+            role: "",
+            status,
+            notes: `Created from Gmail sync: ${subject} | ${from}`,
+          },
+        });
+
+        applications.push(createdApplication);
+        matchedApplication = createdApplication;
       } else {
         if (!matchedApplication) console.log(`   ❌ No company match found`);
         if (!status) console.log(`   ❌ Email not classified (no keywords)`);
